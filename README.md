@@ -16,6 +16,23 @@ This is a simple Python-based JSON API skeleton. It contains basic foundational 
 * Automatically creates fixtures for development mode
 * Docker build file with build speed optimizations
 
+## API Routes
+
+
+All routes are name spaced with a v1 version:
+
+```
+POST    /1/users                       # Create user
+GET     /1/users/self                  # Get my user info
+DELETE  /1/users/self                  # Delete my account
+POST    /1/users/self                  # Update my account
+GET     /1/users                       # Search/List users (for admin)
+POST    /1/users/sessions              # Get auth token (create session)
+DELETE  /1/users/self                  # Delete my account
+POST    /1/users/forgot_password       # Send forgot password mail
+POST    /1/users/reset_password        # Use reset password token to set new password
+```
+
 ## Configuration
 
 All defaults are set in `api/constants.py`:
@@ -64,5 +81,9 @@ To adjust the number of workers, either edit the Makefile or use the `GUNICORN_N
 ## Deployment / Docker
 
 ```bash
-docker build --no-cache -t my-api .
+docker build -t my-api .
 ```
+
+## Todo
+
+* Admin user management routes
