@@ -23,10 +23,13 @@ All routes are name spaced with a v1 version:
 
 ```
 POST    /1/users                       # Create user
+GET     /1/users                       # Search/List users (for admin)
+GET     /1/users/:user_id              # Get user (admin only)
+DELETE  /1/users/:user_id              # Delete user (admin only)
+POST    /1/users/:user_id              # Update user (admin only)
 GET     /1/users/self                  # Get my user info
 DELETE  /1/users/self                  # Delete my account
 POST    /1/users/self                  # Update my account
-GET     /1/users                       # Search/List users (for admin)
 POST    /1/users/sessions              # Get auth token (create session)
 DELETE  /1/users/self                  # Delete my account
 POST    /1/users/forgot_password       # Send forgot password mail
