@@ -5,22 +5,21 @@ import json
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../../')
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../')
 
-from utils import setup_mock_db, create_flask_app, api_post, api_get
-app = create_flask_app(mock=True)
+from utils import *
+db = setup_mock_db()
+app = create_flask_app(mock=True, db=db)
 
 from api.routes.users import app as users_app
 app.register_blueprint(users_app, url_prefix='/1/users')
 
 from api.users import get_user
 
-db = setup_mock_db()
-
-class ApiUsersTest(unittest.TestCase):
+class RoutesUsersTest(unittest.TestCase):
 
     def setUp(self):
         self.app = app.test_client()
 
-    def test_crud(self):
+    def test_self_crud(self):
         db.accounts.remove({'company_name': 'Skeleton'})
         db.users.remove({'username': 'dominiek'})
 
@@ -31,13 +30,13 @@ class ApiUsersTest(unittest.TestCase):
             'password': 'blabla',
             'name': 'Dominiek',
             'company_name': 'Skeleton',
-            'email': 'info@dominiek.com'
+            'email': 'hello@dominiek.com'
         }
         error, result = api_post(self.app, '/1/users', params)
         self.assertEquals(error, None)
         self.assertEquals(result['permissions']['account_owner'], True)
         params = {
-            'email': 'info@dominiek.com',
+            'email': 'hello@dominiek.com',
             'password': 'blabla'
         }
 
@@ -61,7 +60,7 @@ class ApiUsersTest(unittest.TestCase):
         # Reset Password
         params = {
             'reset_password_token': user['reset_password_token'],
-            'email': 'info@dominiek.com',
+            'email': 'hello@dominiek.com',
             'new_password': 'blabla2'
         }
         error, result = api_post(self.app, '/1/users/reset_password', params)
@@ -73,6 +72,43 @@ class ApiUsersTest(unittest.TestCase):
         # Delete account
         error, result = api_post(self.app, '/1/users/self', params={'confirm': True}, delete=True, token=token)
         self.assertEquals(error, None)
+
+    def test_admin_crud(self):
+        user, token = create_test_user_and_token(db)
+        admin_user, admin_token = create_test_user_and_token(db, 'admin', admin=True)
+
+        # Get user (no permissions)
+        error, result = api_get(self.app, '/1/users/{}'.format(user['_id']), token=token)
+        self.assertEquals(error['message'], 'Sorry, you have no permissions for this action')
+
+        params = {
+            'name': 'Funky'
+        }
+
+        # Update user (no permissions)
+        error, result = api_post(self.app, '/1/users/{}'.format(user['_id']), params, token=token)
+        self.assertEquals(error['message'], 'Sorry, you have no permissions for this action')
+
+        # Delete user (no permissions)
+        error, result = api_post(self.app, '/1/users/{}'.format(user['_id']), params={'confirm': True}, delete=True, token=token)
+        self.assertEquals(error['message'], 'Sorry, you have no permissions for this action')
+
+        # Get user
+        error, result = api_get(self.app, '/1/users/{}'.format(user['_id']), token=admin_token)
+        self.assertEquals(error, None)
+        self.assertEquals(result['user']['_id'], str(user['_id']))
+
+        # Update user
+        error, result = api_post(self.app, '/1/users/{}'.format(user['_id']), params, token=admin_token)
+        self.assertEquals(error, None)
+        error, result = api_get(self.app, '/1/users/{}'.format(user['_id']), token=admin_token)
+        self.assertEquals(error, None)
+        self.assertEquals(result['user']['name'], 'Funky')
+
+        # Delete user
+        error, result = api_post(self.app, '/1/users/{}'.format(user['_id']), params={'confirm': True}, delete=True, token=admin_token)
+        self.assertEquals(error, None)
+
 
     def test_list_public_users(self):
         # Sign Up

@@ -55,11 +55,11 @@ def require_user(params={}):
     if g.user_id:
         user = get_user(g.db, g.user_id)
         if not user:
-            raise Exception('Failed to authenticate via JWT session')
+            raise Exception('Failed to authenticate via JWT session (user object not found)')
     else:
         api_key = get_api_key(params)
         if not api_key:
-            raise Exception('Not authenticated, expected either JWT session or api_key')
+            raise Exception('Not authenticated, expected either valid JWT session or api_key')
         user = get_user_by_api_key(g.db, api_key)
         if not user:
             raise Exception('Failed to authenticate via api_key')

@@ -61,7 +61,7 @@ def create_flask_app(mock=False, db=None):
 
     @app.errorhandler(Exception)
     def handle_exception(error):
-        traceback.print_exc()
+        #traceback.print_exc()
         error = {'message': str(error), 'type': str(type(error).__name__)}
         return jsonify({'error': error})
 

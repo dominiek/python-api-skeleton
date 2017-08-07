@@ -83,7 +83,3 @@ To adjust the number of workers, either edit the Makefile or use the `GUNICORN_N
 ```bash
 docker build -t my-api .
 ```
-
-## Todo
-
-* Admin user management routes
