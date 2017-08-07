@@ -9,7 +9,7 @@ from utils import setup_mock_db, create_flask_app, api_post, api_get
 app = create_flask_app(mock=True)
 
 from api.routes.users import app as users_app
-app.register_blueprint(users_app)
+app.register_blueprint(users_app, url_prefix='/1/users')
 
 from api.users import get_user
 

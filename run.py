@@ -23,7 +23,7 @@ def setup_db():
 app.before_request(setup_db)
 
 from api.routes.users import app as users_app
-app.register_blueprint(users_app)
+app.register_blueprint(users_app, url_prefix='/1/users')
 
 @app.before_request
 def before_request():

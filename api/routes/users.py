@@ -21,7 +21,15 @@ def clean_internals(user):
         del user['hash']
     return user
 
-@app.route("/1/users", methods=['POST'])
+@app.route("", methods=['GET'])
+def route_list_users():
+    username = str(request.args['username'])
+    users = list_users(g.db, username=username)
+    return jsonify({
+        'result': map(public_user, users)
+    })
+
+@app.route("", methods=['POST'])
 def route_create_user():
     params = request.get_json()
     if params['invite_code'] != 'invitecode':
@@ -31,14 +39,14 @@ def route_create_user():
     user = create_user(g.db, account['_id'], params['email'], params['username'], params['password'], params['name'], permissions=permissions, send_welcome_mail=True)
     return jsonify({'result': clean_internals(sanitize_result(user))})
 
-@app.route("/1/users/sessions", methods=['POST'])
+@app.route("/sessions", methods=['POST'])
 def route_create_users_session():
     params = request.get_json()
     authenticated_user = authenticate_user(g.db, params['email'], params['password'])
     token = encode_user_session(authenticated_user['_id'])
     return jsonify({'result': {'token': token}})
 
-@app.route("/1/users/forgot_password", methods=['POST'])
+@app.route("/forgot_password", methods=['POST'])
 def route_forgot_password():
     params = request.get_json()
     user = get_user_by_email(g.db, params['email'])
@@ -49,7 +57,7 @@ def route_forgot_password():
     forgot_password(g.db, user)
     return jsonify({'result': {'success': True}})
 
-@app.route("/1/users/reset_password", methods=['POST'])
+@app.route("/reset_password", methods=['POST'])
 def route_reset_password():
     params = request.get_json()
     user = get_user_by_email(g.db, params['email'])
@@ -58,15 +66,7 @@ def route_reset_password():
     reset_password(g.db, user, params['reset_password_token'], params['new_password'])
     return jsonify({'result': {'success': True}})
 
-@app.route("/1/users", methods=['GET'])
-def route_list_users():
-    username = str(request.args['username'])
-    users = list_users(g.db, username=username)
-    return jsonify({
-        'result': map(public_user, users)
-    })
-
-@app.route("/1/users/self", methods=['GET'])
+@app.route("/self", methods=['GET'])
 def route_get_users_self():
     user, account = require_user_and_account()
     del user['hash']
@@ -77,7 +77,7 @@ def route_get_users_self():
         }
     })
 
-@app.route("/1/users/self", methods=['POST'])
+@app.route("/self", methods=['POST'])
 def route_update_users_self():
     params = request.get_json()
     user, account = require_user_and_account(params)
@@ -91,7 +91,7 @@ def route_update_users_self():
     save_user(g.db, user)
     return jsonify({'result': clean_internals(sanitize_result(user))})
 
-@app.route("/1/users/self", methods=['DELETE'])
+@app.route("/self", methods=['DELETE'])
 def route_remove_users_self():
     params = request.get_json()
     user = require_user()
