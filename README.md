@@ -16,6 +16,8 @@ This is a simple Python-based JSON API skeleton. It contains basic foundational 
 * Automatically creates fixtures for development mode
 * Docker build file with build speed optimizations
 
+_Note: A Node.js version of this project can be found [here](https://github.com/dominiek/node-api-skeleton)_
+
 ## API Routes
 
 
